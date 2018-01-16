@@ -8,11 +8,36 @@ console.log(titulo.classList);
 
 var botaoAdicionar = document.querySelector("#botao-paciente");
 botaoAdicionar.addEventListener("click", addRegistroTabela);
-calcImcTabela();
+fillImcTabela();
 
 function alertTeste(event) {
 	event.preventDefault();
 	window.alert("click ok!!!");
+}
+
+function fillImcTabela() {
+	var trPacientes = document.querySelectorAll(".paciente");
+
+	for (var i = 0; i < trPacientes.length; i++) {
+
+		var trPaciente = trPacientes[i];
+		var paciente = getPacienteFromRegTabela(trPaciente);	
+		var tdImc = trPaciente.querySelector(".info-imc");
+		
+		if ((paciente.peso < 20) || (paciente.peso > 250)) {
+			tdImc.textContent = "Peso Inválido";
+			trPaciente.classList.add("paciente-invalido")
+			// paciente.style.color = "#000000";
+			// paciente.style.backgroundColor = "#FFEEEE";
+		} else if ((paciente.altura < 1) || (paciente.altura > 2.5)) {
+			tdImc.textContent = "Altura Inválida";
+			trPaciente.classList.add("paciente-invalido")
+		} else {
+			var imc = calcImcByPaciente(paciente);
+			tdImc.textContent = imc.toFixed(2);	
+		}
+	
+	}
 }
 
 function addRegistroTabela(event) {
@@ -20,72 +45,72 @@ function addRegistroTabela(event) {
 	
 	var tabela = document.querySelector("#tabela-pacientes");
 	var form = document.querySelector("#form-adicionar");
+	var paciente = getPacienteFromForm(form);
 	
 	var pacienteTr = document.createElement("tr");
 	pacienteTr.classList.add("paciente");
 	
-	var nome = form.nome.value;
 	var nomeTd = document.createElement("td");
 	nomeTd.classList.add("info-nome");
-	nomeTd.textContent = nome;	
+	nomeTd.textContent = paciente.nome;	
 	pacienteTr.appendChild(nomeTd);
 	
-	var peso = form.peso.value;
     var pesoTd = document.createElement("td");
 	pesoTd.classList.add("info-peso");
-	pesoTd.textContent = peso;
+	pesoTd.textContent = paciente.peso;
 	pacienteTr.appendChild(pesoTd);
 	
-    var altura = form.altura.value;
 	var alturaTd = document.createElement("td");
 	alturaTd.classList.add("info-altura");
-	alturaTd.textContent = altura;
+	alturaTd.textContent = paciente.altura;
 	pacienteTr.appendChild(alturaTd);
 
-	var gordura = form.gordura.value;
     var gorduraTd = document.createElement("td");
 	gorduraTd.classList.add("info-gordura");
-	gorduraTd.textContent = gordura;
+	gorduraTd.textContent = paciente.gordura;
 	pacienteTr.appendChild(gorduraTd);
 	
-	var imc = 0;
     var imcTd = document.createElement("td");	
 	imcTd.classList.add("info-imc");
-	imcTd.textContent = imc.toFixed(2);
+	imcTd.textContent = paciente.imc.toFixed(2);
 	pacienteTr.appendChild(imcTd);
 	
 	tabela.appendChild(pacienteTr);
 	
-	calcImcTabela();
+	fillImcTabela();
+	
+	form.reset();
 }
 
-function calcImcTabela() {
-	var pacientes = document.querySelectorAll(".paciente");
+function getPacienteFromRegTabela(trPaciente) {
 
-	for (var i = 0; i < pacientes.length; i++) {
+	var tdNome = trPaciente.querySelector(".info-nome");
+	var tdPeso = trPaciente.querySelector(".info-peso");
+	var tdAltura = trPaciente.querySelector(".info-altura");
+	var tdGordura = trPaciente.querySelector(".info-gordura");
 
-		var paciente = pacientes[i];
-
-		var tdPeso = paciente.querySelector(".info-peso");
-		var peso = tdPeso.textContent;
-
-		var tdAltura = paciente.querySelector(".info-altura");
-		var altura = tdAltura.textContent;	
-		
-		var tdImc = paciente.querySelector(".info-imc");
-		
-		if ((peso < 20) || (peso > 250)) {
-			tdImc.textContent = "Peso Inválido";
-			paciente.classList.add("paciente-invalido")
-			// paciente.style.color = "#000000";
-			// paciente.style.backgroundColor = "#FFEEEE";
-		} else if ((altura < 1) || (altura > 2.5)) {
-			tdImc.textContent = "Altura Inválida";
-			paciente.classList.add("paciente-invalido")
-		} else {
-			var imc = peso / (altura * altura);
-			tdImc.textContent = imc.toFixed(2);	
-		}
-	
+	var paciente = {
+		nome: tdNome.textContent,
+		peso: tdPeso.textContent,
+		altura: tdAltura.textContent,
+		gordura: tdGordura.textContent,
+		imc: 0
 	}
+	
+	return paciente;
+
+}
+
+function getPacienteFromForm(form) {
+
+	var paciente = {
+		nome: form.nome.value,
+		peso: form.peso.value,
+		altura: form.altura.value,
+		gordura: form.gordura.value,
+		imc: 0
+	}
+	
+	return paciente;
+
 }
