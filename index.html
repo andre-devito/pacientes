@@ -7,7 +7,7 @@
 		<link rel="stylesheet" type="text/css" href="css/reset.css">
 		<link rel="stylesheet" type="text/css" href="css/index.css">		
 	</head>
-	<body>
+	<body onload="init();">
 
 		<header>
 			<div class="container">
@@ -76,6 +76,7 @@
 			
 			<section class="container">	
 				<h2>Adicionar Paciente</h2>
+				<ul id="mensagens-erro"></ul>
 				<form id="form-adicionar">
 					<div class="">
 						<label for="nome">Nome:</label>

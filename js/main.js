@@ -1,14 +1,23 @@
-var titulo = document.querySelector(".titulo");
-titulo.textContent = "Cadastro de Pacientes";
-titulo.addEventListener("click", alertTeste);
+function init() {
 
-// Teste
-var titulo = document.querySelector("h1");
-console.log(titulo.classList);
+	var titulo = document.querySelector(".titulo");
+	titulo.textContent = "Cadastro de Pacientes";
+	titulo.addEventListener("click", alertTeste);
 
-var botaoAdicionar = document.querySelector("#botao-paciente");
-botaoAdicionar.addEventListener("click", addRegistroTabela);
-fillImcTabela();
+	// Teste
+	var titulo = document.querySelector("h1");
+	console.log(titulo.classList);
+
+	var botaoAdicionar = document.querySelector("#botao-paciente");
+	botaoAdicionar.addEventListener("click", addRegistroTabela);
+
+	cleanErrors();
+	fillImcTabela();
+
+	var form = document.querySelector("#form-adicionar");
+	form.reset();
+
+}
 
 function alertTeste(event) {
 	event.preventDefault();
@@ -24,17 +33,14 @@ function fillImcTabela() {
 		var paciente = getPacienteFromRegTabela(trPaciente);	
 		var tdImc = trPaciente.querySelector(".info-imc");
 		
-		if ((paciente.peso < 20) || (paciente.peso > 250)) {
-			tdImc.textContent = "Peso Inválido";
-			trPaciente.classList.add("paciente-invalido")
-			// paciente.style.color = "#000000";
-			// paciente.style.backgroundColor = "#FFEEEE";
-		} else if ((paciente.altura < 1) || (paciente.altura > 2.5)) {
-			tdImc.textContent = "Altura Inválida";
+		var erros = validPaciente(paciente);
+
+		if (erros.length > 0) {
+			tdImc.textContent = "-";
 			trPaciente.classList.add("paciente-invalido")
 		} else {
 			var imc = calcImcByPaciente(paciente);
-			tdImc.textContent = imc.toFixed(2);	
+			tdImc.textContent = imc.toFixed(2);
 		}
 	
 	}
@@ -42,6 +48,8 @@ function fillImcTabela() {
 
 function addRegistroTabela(event) {
 	event.preventDefault();
+
+	cleanErrors();
 	
 	var tabela = document.querySelector("#tabela-pacientes");
 	var form = document.querySelector("#form-adicionar");
@@ -75,11 +83,15 @@ function addRegistroTabela(event) {
 	imcTd.textContent = paciente.imc.toFixed(2);
 	pacienteTr.appendChild(imcTd);
 	
-	tabela.appendChild(pacienteTr);
-	
-	fillImcTabela();
-	
-	form.reset();
+	var erros = validPaciente(paciente);
+
+	if (erros.length > 0) {
+		showErrors(erros);
+	} else {
+		tabela.appendChild(pacienteTr);
+		fillImcTabela();
+		form.reset();
+	}
 }
 
 function getPacienteFromRegTabela(trPaciente) {
@@ -114,3 +126,77 @@ function getPacienteFromForm(form) {
 	return paciente;
 
 }
+
+function validPaciente(paciente) {
+
+	var erros = [];
+
+	if (paciente.nome.length == 0) {
+		erros.push("O campo Nome deve ser preenchido");
+	}
+
+	if (paciente.peso.length == 0) {
+		erros.push("O campo Peso deve ser preenchido");
+	}
+
+	if ((paciente.peso < 20) || (paciente.peso > 250)) {
+		erros.push("O campo Peso está inválido");
+	}
+
+	if (paciente.altura.length == 0) {
+		erros.push("O campo Altura deve ser preenchido");
+	}
+
+	if ((paciente.altura < 1) || (paciente.altura > 2.5)) {
+		erros.push("O campo Altura está inválido");
+	}
+
+	return erros;
+
+}
+
+function cleanErrors(erros) {
+
+	var ul = document.querySelector("#mensagens-erro");
+	ul.innerHTML = "";
+
+}
+
+function showErrors(erros) {
+	
+	var ul = document.querySelector("#mensagens-erro");
+
+	erros.forEach(function(erro) { 
+
+		var li = document.createElement("li");
+		li.textContent = erro;
+		ul.appendChild(li);
+
+	});
+
+	var br = document.createElement("br");
+	ul.appendChild(br);
+	ul.appendChild(br);
+
+}
+
+function showErrorsAux(erros) {
+	
+	var ul = document.querySelector("#mensagens-erro");
+
+	for (var i=0; i<erros.length; i++) {
+
+		var erro = erros[i];
+		var li = document.createElement("li");
+		li.textContent = erro;
+		ul.appendChild(li);
+
+	}
+
+	var br = document.createElement("br");
+	ul.appendChild(br);
+	ul.appendChild(br);
+
+}
+
+
