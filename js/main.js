@@ -8,10 +8,27 @@ function init() {
 	var titulo = document.querySelector("h1");
 	console.log(titulo.classList);
 
+	var campoFiltro = document.querySelector("#pesquisar-tabela");
+	// campoFiltro.reset();
+	campoFiltro.addEventListener("input", filterRegistroTabela);
+
+	var campoPesquisa = document.querySelector("#buscar-paciente");
+	campoPesquisa.addEventListener("click", searchRegistroTabela);
+
+	// var tabelaPacientes = document.querySelector("table");
+	var tabelaPacientes = document.querySelector("#tabela-pacientes");
+	tabelaPacientes.addEventListener("dblclick", removeRegistroTabela);
+
+	// var pacientes = document.querySelectorAll(".paciente");
+	// pacientes.forEach(function(paciente) {
+		// paciente.addEventListener("dblclick", removeRegistroTabela);
+	//});
+
 	var botaoAdicionar = document.querySelector("#botao-paciente");
 	botaoAdicionar.addEventListener("click", addRegistroTabela);
 
-	cleanErrors();
+	clearErrors();
+	clearErrorsAjax();
 	fillImcTabela();
 
 	var form = document.querySelector("#form-adicionar");
@@ -46,15 +63,13 @@ function fillImcTabela() {
 	}
 }
 
-function addRegistroTabela(event) {
-	event.preventDefault();
-
-	cleanErrors();
-	
+function addPacienteTabela(paciente) {
+	var pacienteTr = createRegistroTabela(paciente);
 	var tabela = document.querySelector("#tabela-pacientes");
-	var form = document.querySelector("#form-adicionar");
-	var paciente = getPacienteFromForm(form);
-	
+	tabela.appendChild(pacienteTr);
+}
+
+function createRegistroTabela(paciente) {
 	var pacienteTr = document.createElement("tr");
 	pacienteTr.classList.add("paciente");
 	
@@ -82,6 +97,20 @@ function addRegistroTabela(event) {
 	imcTd.classList.add("info-imc");
 	imcTd.textContent = paciente.imc.toFixed(2);
 	pacienteTr.appendChild(imcTd);
+
+	return pacienteTr;
+}
+
+function addRegistroTabela(event) {
+	event.preventDefault();
+
+	clearErrors();
+	
+	var tabela = document.querySelector("#tabela-pacientes");
+	var form = document.querySelector("#form-adicionar");
+	var paciente = getPacienteFromForm(form);
+	
+	var pacienteTr = createRegistroTabela(paciente);
 	
 	var erros = validPaciente(paciente);
 
@@ -92,6 +121,71 @@ function addRegistroTabela(event) {
 		fillImcTabela();
 		form.reset();
 	}
+}
+
+function removeRegistroTabela(event) {
+	// this.remove();
+	var targetTd = event.target;
+	var targetTr = targetTd.parentNode;
+	targetTr.classList.add("fadeOut");
+
+	setTimeout(function() {
+		targetTr.remove();
+	}, 500);
+	// targetTr.remove();
+}
+
+function filterRegistroTabela(event) {
+	var textoDigitado = this.value;
+	var expressao = new RegExp(textoDigitado, "i");
+	var pacientes = document.querySelectorAll(".paciente");
+
+	if (textoDigitado.length > 0) {
+		for (var i=0; i<pacientes.length; i++) {
+			var paciente = pacientes[i];
+			var nomeTd = paciente.querySelector(".info-nome");
+			var nome = nomeTd.textContent;
+			if (!expressao.test(nome)) {
+				paciente.classList.add("invisivel");
+			} else {
+				paciente.classList.remove("invisivel");
+			}
+		}
+	} else {
+		for (var i=0; i<pacientes.length; i++) {
+			var paciente = pacientes[i];
+			paciente.classList.remove("invisivel");
+		}
+	}
+}
+
+function searchRegistroTabela(event) {
+	var xhr = new XMLHttpRequest();
+	xhr.open("GET", "https://api-pacientes.herokuapp.com/pacientes");
+	xhr.addEventListener("load", function() {
+		if (xhr.status == 200) {
+			clearErrorsAjax();
+
+	        	var resposta = xhr.responseText;
+	        	var pacientes = JSON.parse(resposta);
+
+	        	pacientes.forEach(function(paciente) {
+	            		addPacienteTabela(paciente);
+	        	});
+		} else {
+			showErrorsAjax();
+
+			console.log(xhr.status);
+			console.log(xhr.responseText);
+
+	        	// console.log(resposta);
+	        	// console.log(typeof resposta);
+
+	        	// console.log(pacientes);
+	        	// console.log(typeof pacientes);
+		}
+	});
+	xhr.send();
 }
 
 function getPacienteFromRegTabela(trPaciente) {
@@ -155,10 +249,17 @@ function validPaciente(paciente) {
 
 }
 
-function cleanErrors(erros) {
+function clearErrors(erros) {
 
 	var ul = document.querySelector("#mensagens-erro");
 	ul.innerHTML = "";
+
+}
+
+function clearErrorsAjax() {
+
+	var span = document.querySelector("#erro-ajax");
+	span.classList.add("invisivel");
 
 }
 
@@ -198,5 +299,13 @@ function showErrorsAux(erros) {
 	ul.appendChild(br);
 
 }
+
+function showErrorsAjax() {
+
+	var span = document.querySelector("#erro-ajax");
+	span.classList.remove("invisivel");
+
+}
+
 
 

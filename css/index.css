@@ -41,6 +41,12 @@ header .container:before {
 	margin: 0 auto;
 }
 
+#pesquisar-tabela {
+	width: 200px;
+	height: 30px;
+	margin-bottom: 10px;
+}
+
 section {
 	margin: 2em 0;
 	overflow: hidden;
@@ -143,4 +149,12 @@ button[disabled=disabled], button:disabled {
 	color: #000000;
 }
 
+.fadeOut {
+	opacity: 0;
+	transition: 0.5s;
+}
+
+.invisivel {
+	display: none;
+}
 
